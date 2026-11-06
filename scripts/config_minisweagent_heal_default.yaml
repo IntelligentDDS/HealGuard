@@ -1,0 +1,39 @@
+agent:
+  system_template: |
+    You are a helpful assistant that can interact with a computer.
+  instance_template: |
+    {{task}}
+
+    <system_information>
+    {{system}} {{release}} {{version}} {{machine}}
+    </system_information>
+  step_limit: 0
+  cost_limit: 0.
+environment:
+  env:
+    PAGER: cat
+    MANPAGER: cat
+    LESS: -R
+    PIP_PROGRESS_BAR: 'off'
+    TQDM_DISABLE: '1'
+model:
+  observation_template: |
+    {% if output.exception_info -%}
+    <exception>{{output.exception_info}}</exception>
+    {% endif -%}
+    <returncode>{{output.returncode}}</returncode>
+    <output>
+    {{ output.output -}}
+    </output>
+  model_kwargs:
+    drop_params: true
+  format_error_template: |
+    {% if finish_reason is defined and finish_reason in ["length", "tool_calls"] -%}
+    Your previous response was cut off before it produced a complete tool call. Respond more concisely and call exactly one available tool.
+    {%- else -%}
+    <format_error>
+    {{error}}
+    </format_error>
+
+    Call exactly one available tool: read-only `bash`, `execute(code, submit=false)`, `execute(code, submit=true)`, or `reraise()`.
+    {%- endif %}

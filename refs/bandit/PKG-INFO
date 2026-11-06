@@ -1,0 +1,5 @@
+Metadata-Version: 2.1
+Name: bandit
+Version: 1.9.5.dev16
+Summary: Security oriented static analyser for python code.
+License: Apache-2.0

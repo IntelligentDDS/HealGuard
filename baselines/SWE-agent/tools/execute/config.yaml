@@ -1,0 +1,17 @@
+tools:
+  execute:
+    signature: "execute --submit <submit> <code>"
+    docstring: |
+      Execute Python code in the live crashing frame. Set submit=false to inspect
+      or experiment without committing frame changes. Set submit=true to apply
+      the code as the final Heal and resume execution. Submitted code runs at
+      column-0; assign _eh_rtn instead of using a top-level return.
+    arguments:
+      - name: code
+        type: string
+        description: Python code with access to live locals and globals.
+        required: true
+      - name: submit
+        type: boolean
+        description: False for inspection; true to commit the final Heal.
+        required: true

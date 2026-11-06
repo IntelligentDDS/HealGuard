@@ -1,0 +1,147 @@
+default: allow_normal_python
+forbidden_precedence: true
+allowed:
+  statements:
+    - Assign
+    - AnnAssign
+    - AugAssign
+    - Break
+    - Continue
+    - Delete
+    - Expr
+    - For
+    - If
+    - Pass
+    - Raise
+    - Return
+    - Try
+    - While
+    - With
+  expressions:
+    - Attribute
+    - BinOp
+    - BoolOp
+    - Call
+    - Compare
+    - Constant
+    - Dict
+    - DictComp
+    - FormattedValue
+    - GeneratorExp
+    - IfExp
+    - JoinedStr
+    - List
+    - ListComp
+    - Name
+    - Set
+    - SetComp
+    - Slice
+    - Starred
+    - Subscript
+    - Tuple
+    - UnaryOp
+  builtin_calls:
+    - all
+    - any
+    - bool
+    - bytearray
+    - bytes
+    - dict
+    - enumerate
+    - filter
+    - float
+    - frozenset
+    - int
+    - isinstance
+    - issubclass
+    - iter
+    - len
+    - list
+    - map
+    - max
+    - min
+    - next
+    - object
+    - range
+    - repr
+    - reversed
+    - round
+    - set
+    - slice
+    - sorted
+    - str
+    - sum
+    - tuple
+    - type
+    - zip
+  import_roots:
+    - array
+    - collections
+    - copy
+    - datetime
+    - decimal
+    - enum
+    - fractions
+    - functools
+    - itertools
+    - math
+    - numbers
+    - operator
+    - os
+    - pathlib
+    - re
+    - statistics
+    - string
+    - typing
+  project_calls: allow
+  method_calls: allow
+forbidden:
+  nodes:
+    - AsyncFor
+    - AsyncFunctionDef
+    - AsyncWith
+    - Await
+    - ClassDef
+    - FunctionDef
+    - Global
+    - Lambda
+    - Nonlocal
+    - Yield
+    - YieldFrom
+  calls:
+    - __import__
+    - builtins.__import__
+    - builtins.compile
+    - builtins.eval
+    - builtins.exec
+    - compile
+    - eval
+    - exec
+    - globals
+    - locals
+    - vars
+  module_roots:
+    - asyncio.subprocess
+    - ctypes
+    - importlib
+    - multiprocessing
+    - pty
+    - resource
+    - shutil
+    - signal
+    - socket
+    - subprocess
+  attributes:
+    - __bases__
+    - __builtins__
+    - __class__
+    - __code__
+    - __dict__
+    - __globals__
+    - __mro__
+    - __subclasses__
+    - modules
+  attribute_calls:
+    - __delattr__
+    - __getattribute__
+    - __setattr__

@@ -1,0 +1,54 @@
+[project]
+name = "AgenticHeal"
+version = "0.1.0"
+description = ""
+readme = "README.md"
+requires-python = "==3.12.12"
+dependencies = [
+    # 验证
+    "loguru==0.7.3",
+    "ipykernel==7.2.0",
+    "matplotlib==3.10.8",
+    "pandas==3.0.0",
+    "python-dotenv==1.2.1",
+    "flask==3.1.2",
+    # 智能体
+    "fastapi==0.128.7",
+    "ddgs==9.10.0",
+    # litellm/tree-sitter 下限放宽以兼容 vendored openhands-sdk(要求 litellm>=1.84.1 / tree-sitter>=0.25)。
+    # scripts/ 不直接 import tree_sitter(插装走标准库 ast);mini-swe/SWE-agent 本就接受 litellm>=1.84。
+    "litellm>=1.84.1,!=1.82.7,!=1.82.8",
+    "datasets==2.21.0",
+    "evalplus==0.3.1",
+    "termcolor==3.3.0",
+    "tree-sitter>=0.25",
+    "tree-sitter-language-pack==1.14.3",
+    "swebench==4.1.0",
+    "sympy==1.14.0",
+    "jinja2>=3.1",
+    "pyyaml>=6",
+    # 行为测试
+    "pytest>=8",
+    # 由下面的 [tool.uv.sources] 重定向到本地 editable 路径
+    "sweagent",
+    "mini-swe-agent",
+    # 新增 baseline:vendored 官方源码(与 mini-swe/SWE-agent 同样 editable)
+    "openhands-sdk",
+    "openhands-tools",
+    "claude-agent-sdk",
+    "nagini",
+    "setuptools>=82.0.1",
+    "scipy>=1.18.0",
+    "openai-codex>=0.147.0",
+    "bandit",
+    "rapidfuzz>=3.14,<4",
+]
+
+[tool.uv.sources]
+sweagent = { path = "baselines/SWE-agent", editable = true }
+mini-swe-agent = { path = "baselines/mini-swe-agent", editable = true }
+openhands-sdk = { path = "baselines/software-agent-sdk/openhands-sdk", editable = true }
+openhands-tools = { path = "baselines/software-agent-sdk/openhands-tools", editable = true }
+claude-agent-sdk = { path = "baselines/claude-agent-sdk-python", editable = true }
+nagini = { git = "https://github.com/marcoeilers/nagini.git" }
+bandit = { path = "refs/bandit", editable = true }

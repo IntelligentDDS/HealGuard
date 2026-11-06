@@ -1,0 +1,6 @@
+tools:
+  reraise:
+    signature: "reraise"
+    docstring: |
+      Stop healing and re-raise the current original exception.
+    arguments: []

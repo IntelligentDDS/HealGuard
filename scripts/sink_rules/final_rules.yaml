@@ -1,0 +1,1760 @@
+version: 4
+source: human_review
+reviewed_from: scripts/sink_rules/official_rules.yaml
+policy: Human-reviewed and supplemented final sink rules; this is the only source compiled for Guard.
+sink_kinds:
+- CODE_EXECUTION
+- COMMAND_PROCESS
+- FILESYSTEM
+- NETWORK_IPC
+- DATABASE
+- SENSITIVE_DATA_ACCESS
+- DATA_DISCLOSURE
+- CREDENTIAL_IDENTITY
+- PERMISSION_AUTHORITY
+- SYSTEM_ENVIRONMENT_CONFIGURATION
+- PERSISTENT_SHARED_STATE
+- SCHEDULING_CONCURRENCY
+- AVAILABILITY_RESOURCE
+- UNKNOWN_EFFECT
+rules:
+- rule_id: RH.CODE_EXECUTION.eval
+  sink_kind: CODE_EXECUTION
+  effect_key: expression_evaluation
+  template: direct_call
+  callee: builtins.eval
+  dangerous_argument: 0
+  evidence: 'AgenticHeal live-frame policy: evaluates a runtime expression'
+  fully_qualified_callee_or_event: builtins.eval
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.CODE_EXECUTION.exec
+  sink_kind: CODE_EXECUTION
+  effect_key: statement_execution
+  template: direct_call
+  callee: builtins.exec
+  dangerous_argument: 0
+  evidence: 'AgenticHeal live-frame policy: executes runtime statements'
+  fully_qualified_callee_or_event: builtins.exec
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.CODE_EXECUTION.compile
+  sink_kind: CODE_EXECUTION
+  effect_key: code_compilation
+  template: direct_call
+  callee: builtins.compile
+  dangerous_argument: 0
+  evidence: 'AgenticHeal live-frame policy: creates an executable code object'
+  fully_qualified_callee_or_event: builtins.compile
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.CODE_EXECUTION.function_type
+  sink_kind: CODE_EXECUTION
+  effect_key: code_object_activation
+  template: direct_call
+  callee: types.FunctionType
+  dangerous_argument: 0
+  evidence: 'AgenticHeal live-frame policy: turns a code object into a callable'
+  fully_qualified_callee_or_event: types.FunctionType
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.CODE_EXECUTION.pickle_loads
+  sink_kind: CODE_EXECUTION
+  effect_key: object_deserialization
+  template: direct_call
+  callee: pickle.loads
+  dangerous_argument: 0
+  evidence: 'AgenticHeal live-frame policy: reconstructs objects through executable reducers'
+  fully_qualified_callee_or_event: pickle.loads
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: official_evidence_and_human_review
+    official_rule_references:
+    - bandit|B301|BlacklistCall|scripts/sink_rules/sources/bandit/bandit/blacklists/calls.py
+    - semgrep|tainted-pickle-deserialization|SemgrepRule|scripts/sink_rules/sources/semgrep/aws-lambda/security/tainted-pickle-deserialization.yaml
+    - pysa|rce_sinks.pysa:22|PysaModel|scripts/sink_rules/sources/pysa/core_privacy_security/rce_sinks.pysa|22
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.CODE_EXECUTION.runpy_run_path
+  sink_kind: CODE_EXECUTION
+  effect_key: file_as_code_execution
+  template: direct_call
+  callee: runpy.run_path
+  dangerous_argument: 0
+  evidence: 'AgenticHeal live-frame policy: executes a filesystem path as Python code'
+  fully_qualified_callee_or_event: runpy.run_path
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.COMMAND_PROCESS.os_system
+  sink_kind: COMMAND_PROCESS
+  effect_key: shell_command_execution
+  template: direct_call
+  callee: os.system
+  dangerous_argument: 0
+  evidence: 'AgenticHeal live-frame policy: executes text through a command shell'
+  fully_qualified_callee_or_event: os.system
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: official_evidence_and_human_review
+    official_rule_references:
+    - bandit|B605|ASTTestPlugin|scripts/sink_rules/sources/bandit/bandit/plugins/injection_shell.py
+    - semgrep|dangerous-system-call|SemgrepRule|scripts/sink_rules/sources/semgrep/aws-lambda/security/dangerous-system-call.yaml
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.COMMAND_PROCESS.subprocess_popen
+  sink_kind: COMMAND_PROCESS
+  effect_key: child_process_creation
+  template: direct_call
+  callee: subprocess.Popen
+  dangerous_argument:
+  - 0
+  - 2
+  - 7
+  - 8
+  - 9
+  - 10
+  - 11
+  evidence: 'AgenticHeal live-frame policy: creates a child process'
+  fully_qualified_callee_or_event: subprocess.Popen
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: official_evidence_and_human_review
+    official_rule_references:
+    - bandit|B602|ASTTestPlugin|scripts/sink_rules/sources/bandit/bandit/plugins/injection_shell.py
+    - bandit|B603|ASTTestPlugin|scripts/sink_rules/sources/bandit/bandit/plugins/injection_shell.py
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.COMMAND_PROCESS.os_execv
+  sink_kind: COMMAND_PROCESS
+  effect_key: process_image_replacement
+  template: direct_call
+  callee: os.execv
+  dangerous_argument: 0
+  evidence: 'AgenticHeal live-frame policy: replaces the current process image'
+  fully_qualified_callee_or_event: os.execv
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: official_evidence_and_human_review
+    official_rule_references:
+    - bandit|B606|ASTTestPlugin|scripts/sink_rules/sources/bandit/bandit/plugins/injection_shell.py
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.COMMAND_PROCESS.os_posix_spawn
+  sink_kind: COMMAND_PROCESS
+  effect_key: posix_process_spawn
+  template: direct_call
+  callee: os.posix_spawn
+  dangerous_argument:
+  - 0
+  - 1
+  - 2
+  evidence: 'AgenticHeal live-frame policy: spawns a process through the POSIX spawn API'
+  fully_qualified_callee_or_event: os.posix_spawn
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.COMMAND_PROCESS.multiprocessing_start
+  sink_kind: COMMAND_PROCESS
+  effect_key: multiprocessing_worker_start
+  template: direct_call
+  callee: multiprocessing.Process.start
+  dangerous_argument: receiver
+  evidence: 'AgenticHeal live-frame policy: starts a managed multiprocessing worker'
+  fully_qualified_callee_or_event: multiprocessing.Process.start
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.FILESYSTEM.os_remove
+  sink_kind: FILESYSTEM
+  effect_key: file_deletion
+  template: direct_call
+  callee: os.remove
+  dangerous_argument: 0
+  evidence: 'AgenticHeal live-frame policy: deletes a filesystem entry'
+  fully_qualified_callee_or_event: os.remove
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: official_evidence_and_human_review
+    official_rule_references:
+    - pysa|filesystem_other_sinks.pysa:6|PysaModel|scripts/sink_rules/sources/pysa/core_privacy_security/filesystem_other_sinks.pysa|6
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.FILESYSTEM.os_rmdir
+  sink_kind: FILESYSTEM
+  effect_key: directory_deletion
+  template: direct_call
+  callee: os.rmdir
+  dangerous_argument: 0
+  evidence: 'AgenticHeal live-frame policy: removes a directory'
+  fully_qualified_callee_or_event: os.rmdir
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: official_evidence_and_human_review
+    official_rule_references:
+    - pysa|filesystem_other_sinks.pysa:10|PysaModel|scripts/sink_rules/sources/pysa/core_privacy_security/filesystem_other_sinks.pysa|10
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.FILESYSTEM.os_replace
+  sink_kind: FILESYSTEM
+  effect_key: atomic_replacement
+  template: direct_call
+  callee: os.replace
+  dangerous_argument:
+  - 0
+  - 1
+  evidence: 'AgenticHeal live-frame policy: atomically replaces a destination entry'
+  fully_qualified_callee_or_event: os.replace
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: official_evidence_and_human_review
+    official_rule_references:
+    - pysa|filesystem_other_sinks.pysa:28|PysaModel|scripts/sink_rules/sources/pysa/core_privacy_security/filesystem_other_sinks.pysa|28
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.FILESYSTEM.shutil_rmtree
+  sink_kind: FILESYSTEM
+  effect_key: tree_deletion
+  template: direct_call
+  callee: shutil.rmtree
+  dangerous_argument: 0
+  evidence: 'AgenticHeal live-frame policy: recursively deletes a directory tree'
+  fully_qualified_callee_or_event: shutil.rmtree
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.FILESYSTEM.shutil_move
+  sink_kind: FILESYSTEM
+  effect_key: cross_location_move
+  template: direct_call
+  callee: shutil.move
+  dangerous_argument:
+  - 0
+  - 1
+  evidence: 'AgenticHeal live-frame policy: moves persistent state between paths'
+  fully_qualified_callee_or_event: shutil.move
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: official_evidence_and_human_review
+    official_rule_references:
+    - pysa|filesystem_other_sinks.pysa:5|PysaModel|scripts/sink_rules/sources/pysa/core_privacy_security/filesystem_other_sinks.pysa|5
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.FILESYSTEM.shutil_copy2
+  sink_kind: FILESYSTEM
+  effect_key: file_copy
+  template: direct_call
+  callee: shutil.copy2
+  dangerous_argument:
+  - 0
+  - 1
+  evidence: 'AgenticHeal live-frame policy: creates a persistent file copy'
+  fully_qualified_callee_or_event: shutil.copy2
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: official_evidence_and_human_review
+    official_rule_references:
+    - pysa|filesystem_other_sinks.pysa:4|PysaModel|scripts/sink_rules/sources/pysa/core_privacy_security/filesystem_other_sinks.pysa|4
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.FILESYSTEM.shutil_copytree
+  sink_kind: FILESYSTEM
+  effect_key: tree_copy
+  template: direct_call
+  callee: shutil.copytree
+  dangerous_argument:
+  - 0
+  - 1
+  evidence: 'AgenticHeal live-frame policy: creates a persistent directory copy'
+  fully_qualified_callee_or_event: shutil.copytree
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: official_evidence_and_human_review
+    official_rule_references:
+    - pysa|filesystem_other_sinks.pysa:42|PysaModel|scripts/sink_rules/sources/pysa/core_privacy_security/filesystem_other_sinks.pysa|42
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.FILESYSTEM.os_truncate
+  sink_kind: FILESYSTEM
+  effect_key: content_truncation
+  template: direct_call
+  callee: os.truncate
+  dangerous_argument: 0
+  evidence: 'AgenticHeal live-frame policy: changes persistent file length'
+  fully_qualified_callee_or_event: os.truncate
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: official_evidence_and_human_review
+    official_rule_references:
+    - pysa|filesystem_other_sinks.pysa:20|PysaModel|scripts/sink_rules/sources/pysa/core_privacy_security/filesystem_other_sinks.pysa|20
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.NETWORK_IPC.socket_connect
+  sink_kind: NETWORK_IPC
+  effect_key: outbound_connection
+  template: direct_call
+  callee: socket.socket.connect
+  dangerous_argument: 0
+  evidence: 'AgenticHeal live-frame policy: opens an outbound transport connection'
+  fully_qualified_callee_or_event: socket.socket.connect
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.NETWORK_IPC.socket_bind
+  sink_kind: NETWORK_IPC
+  effect_key: endpoint_binding
+  template: direct_call
+  callee: socket.socket.bind
+  dangerous_argument: 0
+  evidence: 'AgenticHeal live-frame policy: binds a process-visible endpoint'
+  fully_qualified_callee_or_event: socket.socket.bind
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.NETWORK_IPC.socket_sendto
+  sink_kind: NETWORK_IPC
+  effect_key: datagram_transmission
+  template: direct_call
+  callee: socket.socket.sendto
+  dangerous_argument:
+  - 0
+  - 1
+  evidence: 'AgenticHeal live-frame policy: transmits a datagram'
+  fully_qualified_callee_or_event: socket.socket.sendto
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.NETWORK_IPC.requests_post
+  sink_kind: NETWORK_IPC
+  effect_key: http_state_mutation
+  template: direct_call
+  callee: requests.post
+  dangerous_argument: all
+  evidence: 'AgenticHeal live-frame policy: issues an externally visible HTTP mutation request'
+  fully_qualified_callee_or_event: requests.post
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.DATABASE.sqlite_execute
+  sink_kind: DATABASE
+  effect_key: single_statement_execution
+  template: direct_call
+  callee: sqlite3.Cursor.execute
+  dangerous_argument:
+  - 0
+  - 1
+  evidence: 'AgenticHeal live-frame policy: executes one database statement'
+  fully_qualified_callee_or_event: sqlite3.Cursor.execute
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.DATABASE.sqlite_executemany
+  sink_kind: DATABASE
+  effect_key: batch_statement_execution
+  template: direct_call
+  callee: sqlite3.Cursor.executemany
+  dangerous_argument:
+  - 0
+  - 1
+  evidence: 'AgenticHeal live-frame policy: executes a parameterized statement batch'
+  fully_qualified_callee_or_event: sqlite3.Cursor.executemany
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.DATABASE.sqlite_executescript
+  sink_kind: DATABASE
+  effect_key: statement_script_execution
+  template: direct_call
+  callee: sqlite3.Connection.executescript
+  dangerous_argument: 0
+  evidence: 'AgenticHeal live-frame policy: executes a multi-statement script'
+  fully_qualified_callee_or_event: sqlite3.Connection.executescript
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.DATABASE.sqlite_commit
+  sink_kind: DATABASE
+  effect_key: transaction_commit
+  template: direct_call
+  callee: sqlite3.Connection.commit
+  dangerous_argument: receiver
+  evidence: 'AgenticHeal live-frame policy: commits pending persistent changes'
+  fully_qualified_callee_or_event: sqlite3.Connection.commit
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.DATABASE.mongo_insert_one
+  sink_kind: DATABASE
+  effect_key: document_insertion
+  template: direct_call
+  callee: pymongo.collection.Collection.insert_one
+  dangerous_argument:
+  - 0
+  evidence: 'AgenticHeal live-frame policy: inserts a document into a collection'
+  fully_qualified_callee_or_event: pymongo.collection.Collection.insert_one
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.DATABASE.redis_eval
+  sink_kind: DATABASE
+  effect_key: server_side_script_execution
+  template: direct_call
+  callee: redis.Redis.eval
+  dangerous_argument: all
+  evidence: 'AgenticHeal live-frame policy: executes a server-side data-store script'
+  fully_qualified_callee_or_event: redis.Redis.eval
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.SENSITIVE_DATA_ACCESS.keyring_get_password
+  sink_kind: SENSITIVE_DATA_ACCESS
+  effect_key: credential_store_read
+  template: direct_call
+  callee: keyring.get_password
+  dangerous_argument:
+  - 0
+  - 1
+  evidence: 'AgenticHeal live-frame policy: reads an operating-system credential store'
+  fully_qualified_callee_or_event: keyring.get_password
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.SENSITIVE_DATA_ACCESS.secret_value
+  sink_kind: SENSITIVE_DATA_ACCESS
+  effect_key: secret_wrapper_reveal
+  template: direct_call
+  callee: pydantic.SecretStr.get_secret_value
+  dangerous_argument: receiver
+  evidence: 'AgenticHeal live-frame policy: reveals a wrapped secret'
+  fully_qualified_callee_or_event: pydantic.SecretStr.get_secret_value
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.SENSITIVE_DATA_ACCESS.netrc_authenticators
+  sink_kind: SENSITIVE_DATA_ACCESS
+  effect_key: network_credentials_read
+  template: direct_call
+  callee: netrc.netrc.authenticators
+  dangerous_argument: 0
+  evidence: 'AgenticHeal live-frame policy: reads network credentials from netrc state'
+  fully_qualified_callee_or_event: netrc.netrc.authenticators
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.SENSITIVE_DATA_ACCESS.paramiko_private_key
+  sink_kind: SENSITIVE_DATA_ACCESS
+  effect_key: private_key_read
+  template: direct_call
+  callee: paramiko.RSAKey.from_private_key_file
+  dangerous_argument: 0
+  evidence: 'AgenticHeal live-frame policy: loads private key material'
+  fully_qualified_callee_or_event: paramiko.RSAKey.from_private_key_file
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.SENSITIVE_DATA_ACCESS.google_credentials_file
+  sink_kind: SENSITIVE_DATA_ACCESS
+  effect_key: cloud_credentials_read
+  template: direct_call
+  callee: google.auth.load_credentials_from_file
+  dangerous_argument: 0
+  evidence: 'AgenticHeal live-frame policy: loads cloud credentials from disk'
+  fully_qualified_callee_or_event: google.auth.load_credentials_from_file
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.DATA_DISCLOSURE.stdout_write
+  sink_kind: DATA_DISCLOSURE
+  effect_key: process_output_disclosure
+  template: direct_call
+  callee: sys.stdout.write
+  dangerous_argument: 0
+  evidence: 'AgenticHeal live-frame policy: writes data to process output'
+  fully_qualified_callee_or_event: sys.stdout.write
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.DATA_DISCLOSURE.logging_error
+  sink_kind: DATA_DISCLOSURE
+  effect_key: application_log_disclosure
+  template: direct_call
+  callee: logging.error
+  dangerous_argument: all
+  evidence: 'AgenticHeal live-frame policy: writes data to persistent application logs'
+  fully_qualified_callee_or_event: logging.error
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: official_evidence_and_human_review
+    official_rule_references:
+    - pysa|logging_sinks.pysa:78|PysaModel|scripts/sink_rules/sources/pysa/core_privacy_security/logging_sinks.pysa|78
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.DATA_DISCLOSURE.smtp_sendmail
+  sink_kind: DATA_DISCLOSURE
+  effect_key: email_disclosure
+  template: direct_call
+  callee: smtplib.SMTP.sendmail
+  dangerous_argument:
+  - 0
+  - 1
+  - 2
+  evidence: 'AgenticHeal live-frame policy: sends data by email'
+  fully_qualified_callee_or_event: smtplib.SMTP.sendmail
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.DATA_DISCLOSURE.django_response
+  sink_kind: DATA_DISCLOSURE
+  effect_key: http_response_disclosure
+  template: direct_call
+  callee: django.http.HttpResponse
+  dangerous_argument: all
+  evidence: 'AgenticHeal live-frame policy: returns data across an HTTP trust boundary'
+  fully_qualified_callee_or_event: django.http.HttpResponse
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: official_evidence_and_human_review
+    official_rule_references:
+    - semgrep|direct-use-of-httpresponse|SemgrepRule|scripts/sink_rules/sources/semgrep/django/security/audit/xss/direct-use-of-httpresponse.yaml
+    - semgrep|reflected-data-httpresponse|SemgrepRule|scripts/sink_rules/sources/semgrep/django/security/injection/reflected-data-httpresponse.yaml
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.DATA_DISCLOSURE.sentry_capture
+  sink_kind: DATA_DISCLOSURE
+  effect_key: telemetry_disclosure
+  template: direct_call
+  callee: sentry_sdk.capture_exception
+  dangerous_argument: 0
+  evidence: 'AgenticHeal live-frame policy: exports exception state to telemetry'
+  fully_qualified_callee_or_event: sentry_sdk.capture_exception
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.DATA_DISCLOSURE.traceback_print
+  sink_kind: DATA_DISCLOSURE
+  effect_key: traceback_disclosure
+  template: direct_call
+  callee: traceback.print_exc
+  dangerous_argument: all
+  evidence: 'AgenticHeal live-frame policy: prints live exception state and stack details'
+  fully_qualified_callee_or_event: traceback.print_exc
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.CREDENTIAL_IDENTITY.set_cookie
+  sink_kind: CREDENTIAL_IDENTITY
+  effect_key: session_cookie_mutation
+  template: direct_call
+  callee: werkzeug.sansio.response.Response.set_cookie
+  dangerous_argument:
+  - 0
+  - 1
+  evidence: 'AgenticHeal live-frame policy: mutates a session or identity cookie'
+  fully_qualified_callee_or_event: werkzeug.sansio.response.Response.set_cookie
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.CREDENTIAL_IDENTITY.jwt_encode
+  sink_kind: CREDENTIAL_IDENTITY
+  effect_key: identity_token_creation
+  template: direct_call
+  callee: jwt.encode
+  dangerous_argument: all
+  evidence: 'AgenticHeal live-frame policy: creates an identity token'
+  fully_qualified_callee_or_event: jwt.encode
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: official_evidence_and_human_review
+    official_rule_references:
+    - semgrep|jwt-python-exposed-data|SemgrepRule|scripts/sink_rules/sources/semgrep/jwt/security/audit/jwt-exposed-data.yaml
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.CREDENTIAL_IDENTITY.set_password
+  sink_kind: CREDENTIAL_IDENTITY
+  effect_key: password_mutation
+  template: direct_call
+  callee: django.contrib.auth.base_user.AbstractBaseUser.set_password
+  dangerous_argument: 0
+  evidence: 'AgenticHeal live-frame policy: changes stored password material'
+  fully_qualified_callee_or_event: django.contrib.auth.base_user.AbstractBaseUser.set_password
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.CREDENTIAL_IDENTITY.django_login
+  sink_kind: CREDENTIAL_IDENTITY
+  effect_key: session_authentication
+  template: direct_call
+  callee: django.contrib.auth.login
+  dangerous_argument:
+  - 0
+  - 1
+  - 2
+  evidence: 'AgenticHeal live-frame policy: changes the authenticated session identity'
+  fully_qualified_callee_or_event: django.contrib.auth.login
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.CREDENTIAL_IDENTITY.django_logout
+  sink_kind: CREDENTIAL_IDENTITY
+  effect_key: session_revocation
+  template: direct_call
+  callee: django.contrib.auth.logout
+  dangerous_argument: 0
+  evidence: 'AgenticHeal live-frame policy: revokes the authenticated session identity'
+  fully_qualified_callee_or_event: django.contrib.auth.logout
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.CREDENTIAL_IDENTITY.oauth_fetch_token
+  sink_kind: CREDENTIAL_IDENTITY
+  effect_key: external_token_acquisition
+  template: direct_call
+  callee: requests_oauthlib.OAuth2Session.fetch_token
+  dangerous_argument: all
+  evidence: 'AgenticHeal live-frame policy: obtains an external authorization token'
+  fully_qualified_callee_or_event: requests_oauthlib.OAuth2Session.fetch_token
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.PERMISSION_AUTHORITY.chmod
+  sink_kind: PERMISSION_AUTHORITY
+  effect_key: permission_bits_mutation
+  template: direct_call
+  callee: os.chmod
+  dangerous_argument:
+  - 0
+  - 1
+  evidence: 'AgenticHeal live-frame policy: changes filesystem permission bits'
+  fully_qualified_callee_or_event: os.chmod
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: official_evidence_and_human_review
+    official_rule_references:
+    - bandit|B103|ASTTestPlugin|scripts/sink_rules/sources/bandit/bandit/plugins/general_bad_file_permissions.py
+    - pysa|filesystem_other_sinks.pysa:12|PysaModel|scripts/sink_rules/sources/pysa/core_privacy_security/filesystem_other_sinks.pysa|12
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.PERMISSION_AUTHORITY.chown
+  sink_kind: PERMISSION_AUTHORITY
+  effect_key: resource_ownership_mutation
+  template: direct_call
+  callee: os.chown
+  dangerous_argument:
+  - 0
+  - 1
+  - 2
+  evidence: 'AgenticHeal live-frame policy: changes filesystem ownership'
+  fully_qualified_callee_or_event: os.chown
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: official_evidence_and_human_review
+    official_rule_references:
+    - pysa|filesystem_other_sinks.pysa:13|PysaModel|scripts/sink_rules/sources/pysa/core_privacy_security/filesystem_other_sinks.pysa|13
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.PERMISSION_AUTHORITY.setuid
+  sink_kind: PERMISSION_AUTHORITY
+  effect_key: process_user_authority_mutation
+  template: direct_call
+  callee: os.setuid
+  dangerous_argument: 0
+  evidence: 'AgenticHeal live-frame policy: changes process user authority'
+  fully_qualified_callee_or_event: os.setuid
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.PERMISSION_AUTHORITY.setgid
+  sink_kind: PERMISSION_AUTHORITY
+  effect_key: process_group_authority_mutation
+  template: direct_call
+  callee: os.setgid
+  dangerous_argument: 0
+  evidence: 'AgenticHeal live-frame policy: changes process group authority'
+  fully_qualified_callee_or_event: os.setgid
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.PERMISSION_AUTHORITY.setgroups
+  sink_kind: PERMISSION_AUTHORITY
+  effect_key: supplementary_authority_mutation
+  template: direct_call
+  callee: os.setgroups
+  dangerous_argument: 0
+  evidence: 'AgenticHeal live-frame policy: changes supplementary process groups'
+  fully_qualified_callee_or_event: os.setgroups
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.PERMISSION_AUTHORITY.umask
+  sink_kind: PERMISSION_AUTHORITY
+  effect_key: default_permission_policy_mutation
+  template: direct_call
+  callee: os.umask
+  dangerous_argument: 0
+  evidence: 'AgenticHeal live-frame policy: changes process-wide default permissions'
+  fully_qualified_callee_or_event: os.umask
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.PERMISSION_AUTHORITY.prctl_capability
+  sink_kind: PERMISSION_AUTHORITY
+  effect_key: capability_mutation
+  template: direct_call
+  callee: prctl.cap_effective.limit
+  dangerous_argument: all
+  evidence: 'AgenticHeal live-frame policy: changes Linux process capabilities'
+  fully_qualified_callee_or_event: prctl.cap_effective.limit
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.SYSTEM_ENVIRONMENT_CONFIGURATION.chdir
+  sink_kind: SYSTEM_ENVIRONMENT_CONFIGURATION
+  effect_key: working_directory_mutation
+  template: direct_call
+  callee: os.chdir
+  dangerous_argument: 0
+  evidence: 'AgenticHeal live-frame policy: changes process path resolution context'
+  fully_qualified_callee_or_event: os.chdir
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: official_evidence_and_human_review
+    official_rule_references:
+    - pysa|filesystem_other_sinks.pysa:22|PysaModel|scripts/sink_rules/sources/pysa/core_privacy_security/filesystem_other_sinks.pysa|22
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.SYSTEM_ENVIRONMENT_CONFIGURATION.putenv
+  sink_kind: SYSTEM_ENVIRONMENT_CONFIGURATION
+  effect_key: environment_variable_mutation
+  template: direct_call
+  callee: os.putenv
+  dangerous_argument:
+  - 0
+  - 1
+  evidence: 'AgenticHeal live-frame policy: changes process environment state'
+  fully_qualified_callee_or_event: os.putenv
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: official_evidence_and_human_review
+    official_rule_references:
+    - pysa|filesystem_other_sinks.pysa:24|PysaModel|scripts/sink_rules/sources/pysa/core_privacy_security/filesystem_other_sinks.pysa|24
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.SYSTEM_ENVIRONMENT_CONFIGURATION.settrace
+  sink_kind: SYSTEM_ENVIRONMENT_CONFIGURATION
+  effect_key: execution_tracing_mutation
+  template: direct_call
+  callee: sys.settrace
+  dangerous_argument: 0
+  evidence: 'AgenticHeal live-frame policy: changes interpreter tracing behavior'
+  fully_qualified_callee_or_event: sys.settrace
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.SYSTEM_ENVIRONMENT_CONFIGURATION.addaudithook
+  sink_kind: SYSTEM_ENVIRONMENT_CONFIGURATION
+  effect_key: audit_pipeline_mutation
+  template: direct_call
+  callee: sys.addaudithook
+  dangerous_argument: 0
+  evidence: 'AgenticHeal live-frame policy: adds a permanent process audit hook'
+  fully_qualified_callee_or_event: sys.addaudithook
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.SYSTEM_ENVIRONMENT_CONFIGURATION.signal_handler
+  sink_kind: SYSTEM_ENVIRONMENT_CONFIGURATION
+  effect_key: signal_handler_mutation
+  template: direct_call
+  callee: signal.signal
+  dangerous_argument:
+  - 0
+  - 1
+  evidence: 'AgenticHeal live-frame policy: changes process signal handling'
+  fully_qualified_callee_or_event: signal.signal
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.SYSTEM_ENVIRONMENT_CONFIGURATION.atexit_register
+  sink_kind: SYSTEM_ENVIRONMENT_CONFIGURATION
+  effect_key: shutdown_hook_registration
+  template: direct_call
+  callee: atexit.register
+  dangerous_argument: all
+  evidence: 'AgenticHeal live-frame policy: registers work outside the healing frame'
+  fully_qualified_callee_or_event: atexit.register
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.SYSTEM_ENVIRONMENT_CONFIGURATION.setrecursionlimit
+  sink_kind: SYSTEM_ENVIRONMENT_CONFIGURATION
+  effect_key: interpreter_limit_mutation
+  template: direct_call
+  callee: sys.setrecursionlimit
+  dangerous_argument: 0
+  evidence: 'AgenticHeal live-frame policy: changes a process-wide interpreter limit'
+  fully_qualified_callee_or_event: sys.setrecursionlimit
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.SYSTEM_ENVIRONMENT_CONFIGURATION.setlocale
+  sink_kind: SYSTEM_ENVIRONMENT_CONFIGURATION
+  effect_key: locale_mutation
+  template: direct_call
+  callee: locale.setlocale
+  dangerous_argument:
+  - 0
+  - 1
+  evidence: 'AgenticHeal live-frame policy: changes process-wide locale behavior'
+  fully_qualified_callee_or_event: locale.setlocale
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.SYSTEM_ENVIRONMENT_CONFIGURATION.warnings_filter
+  sink_kind: SYSTEM_ENVIRONMENT_CONFIGURATION
+  effect_key: warning_policy_mutation
+  template: direct_call
+  callee: warnings.simplefilter
+  dangerous_argument: all
+  evidence: 'AgenticHeal live-frame policy: changes process-wide warning behavior'
+  fully_qualified_callee_or_event: warnings.simplefilter
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.PERSISTENT_SHARED_STATE.redis_set
+  sink_kind: PERSISTENT_SHARED_STATE
+  effect_key: shared_cache_write
+  template: direct_call
+  callee: redis.Redis.set
+  dangerous_argument:
+  - 0
+  - 1
+  evidence: 'AgenticHeal live-frame policy: writes shared cache state'
+  fully_qualified_callee_or_event: redis.Redis.set
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.PERSISTENT_SHARED_STATE.redis_delete
+  sink_kind: PERSISTENT_SHARED_STATE
+  effect_key: shared_cache_delete
+  template: direct_call
+  callee: redis.Redis.delete
+  dangerous_argument: all
+  evidence: 'AgenticHeal live-frame policy: deletes shared cache state'
+  fully_qualified_callee_or_event: redis.Redis.delete
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.PERSISTENT_SHARED_STATE.winreg_set_value
+  sink_kind: PERSISTENT_SHARED_STATE
+  effect_key: registry_write
+  template: direct_call
+  callee: winreg.SetValueEx
+  dangerous_argument: all
+  evidence: 'AgenticHeal live-frame policy: writes operating-system registry state'
+  fully_qualified_callee_or_event: winreg.SetValueEx
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.PERSISTENT_SHARED_STATE.winreg_delete_value
+  sink_kind: PERSISTENT_SHARED_STATE
+  effect_key: registry_delete
+  template: direct_call
+  callee: winreg.DeleteValue
+  dangerous_argument:
+  - 0
+  - 1
+  evidence: 'AgenticHeal live-frame policy: deletes operating-system registry state'
+  fully_qualified_callee_or_event: winreg.DeleteValue
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.PERSISTENT_SHARED_STATE.mmap_flush
+  sink_kind: PERSISTENT_SHARED_STATE
+  effect_key: memory_mapping_persistence
+  template: direct_call
+  callee: mmap.mmap.flush
+  dangerous_argument: all
+  evidence: 'AgenticHeal live-frame policy: flushes mapped memory to shared storage'
+  fully_qualified_callee_or_event: mmap.mmap.flush
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.PERSISTENT_SHARED_STATE.joblib_dump
+  sink_kind: PERSISTENT_SHARED_STATE
+  effect_key: object_state_persistence
+  template: direct_call
+  callee: joblib.dump
+  dangerous_argument: all
+  evidence: 'AgenticHeal live-frame policy: persists Python object state'
+  fully_qualified_callee_or_event: joblib.dump
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.SCHEDULING_CONCURRENCY.thread_start
+  sink_kind: SCHEDULING_CONCURRENCY
+  effect_key: thread_scheduling
+  template: direct_call
+  callee: threading.Thread.start
+  dangerous_argument: receiver
+  evidence: 'AgenticHeal live-frame policy: starts work in a new thread'
+  fully_qualified_callee_or_event: threading.Thread.start
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.SCHEDULING_CONCURRENCY.asyncio_create_task
+  sink_kind: SCHEDULING_CONCURRENCY
+  effect_key: event_loop_task_scheduling
+  template: direct_call
+  callee: asyncio.create_task
+  dangerous_argument: 0
+  evidence: 'AgenticHeal live-frame policy: schedules an event-loop task'
+  fully_qualified_callee_or_event: asyncio.create_task
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.SCHEDULING_CONCURRENCY.executor_submit
+  sink_kind: SCHEDULING_CONCURRENCY
+  effect_key: executor_work_scheduling
+  template: direct_call
+  callee: concurrent.futures.Executor.submit
+  dangerous_argument: all
+  evidence: 'AgenticHeal live-frame policy: submits work to an executor'
+  fully_qualified_callee_or_event: concurrent.futures.Executor.submit
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.SCHEDULING_CONCURRENCY.timer_start
+  sink_kind: SCHEDULING_CONCURRENCY
+  effect_key: delayed_thread_scheduling
+  template: direct_call
+  callee: threading.Timer.start
+  dangerous_argument: receiver
+  evidence: 'AgenticHeal live-frame policy: schedules delayed thread work'
+  fully_qualified_callee_or_event: threading.Timer.start
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.SCHEDULING_CONCURRENCY.scheduler_enter
+  sink_kind: SCHEDULING_CONCURRENCY
+  effect_key: scheduler_queue_insertion
+  template: direct_call
+  callee: sched.scheduler.enter
+  dangerous_argument:
+  - 0
+  - 1
+  - 2
+  - 3
+  - 4
+  evidence: 'AgenticHeal live-frame policy: inserts delayed work into a scheduler queue'
+  fully_qualified_callee_or_event: sched.scheduler.enter
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.SCHEDULING_CONCURRENCY.signal_setitimer
+  sink_kind: SCHEDULING_CONCURRENCY
+  effect_key: signal_timer_scheduling
+  template: direct_call
+  callee: signal.setitimer
+  dangerous_argument: all
+  evidence: 'AgenticHeal live-frame policy: schedules asynchronous signal delivery'
+  fully_qualified_callee_or_event: signal.setitimer
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.AVAILABILITY_RESOURCE.sys_exit
+  sink_kind: AVAILABILITY_RESOURCE
+  effect_key: process_termination
+  template: direct_call
+  callee: sys.exit
+  dangerous_argument: 0
+  evidence: 'AgenticHeal live-frame policy: terminates normal process control flow'
+  fully_qualified_callee_or_event: sys.exit
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.AVAILABILITY_RESOURCE.time_sleep
+  sink_kind: AVAILABILITY_RESOURCE
+  effect_key: recovery_blocking
+  template: direct_call
+  callee: time.sleep
+  dangerous_argument: 0
+  evidence: 'AgenticHeal live-frame policy: blocks healing progress'
+  fully_qualified_callee_or_event: time.sleep
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.AVAILABILITY_RESOURCE.setrlimit
+  sink_kind: AVAILABILITY_RESOURCE
+  effect_key: resource_limit_mutation
+  template: direct_call
+  callee: resource.setrlimit
+  dangerous_argument:
+  - 0
+  - 1
+  evidence: 'AgenticHeal live-frame policy: changes process resource availability'
+  fully_qualified_callee_or_event: resource.setrlimit
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.AVAILABILITY_RESOURCE.socket_shutdown
+  sink_kind: AVAILABILITY_RESOURCE
+  effect_key: communication_channel_disablement
+  template: direct_call
+  callee: socket.socket.shutdown
+  dangerous_argument: 0
+  evidence: 'AgenticHeal live-frame policy: disables a live communication channel'
+  fully_qualified_callee_or_event: socket.socket.shutdown
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.AVAILABILITY_RESOURCE.os_close
+  sink_kind: AVAILABILITY_RESOURCE
+  effect_key: descriptor_invalidation
+  template: direct_call
+  callee: os.close
+  dangerous_argument: 0
+  evidence: 'AgenticHeal live-frame policy: invalidates a process resource descriptor'
+  fully_qualified_callee_or_event: os.close
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.CODE_EXECUTION.import_module
+  sink_kind: CODE_EXECUTION
+  effect_key: dynamic_module_execution
+  template: direct_call
+  callee: importlib.import_module
+  dangerous_argument: 0
+  evidence: 'AgenticHeal live-frame policy: loads a runtime-selected Python module'
+  fully_qualified_callee_or_event: importlib.import_module
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: official_evidence_and_human_review
+    official_rule_references:
+    - semgrep|non-literal-import|SemgrepRule|scripts/sink_rules/sources/semgrep/lang/security/audit/non-literal-import.yaml
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.CODE_EXECUTION.ctypes_cdll
+  sink_kind: CODE_EXECUTION
+  effect_key: native_library_loading
+  template: direct_call
+  callee: ctypes.CDLL
+  dangerous_argument: 0
+  evidence: 'AgenticHeal live-frame policy: loads behavior outside the Python model'
+  fully_qualified_callee_or_event: ctypes.CDLL
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.CODE_EXECUTION.entrypoint_load
+  sink_kind: CODE_EXECUTION
+  effect_key: plugin_loading
+  template: direct_call
+  callee: importlib.metadata.EntryPoint.load
+  dangerous_argument: receiver
+  evidence: 'AgenticHeal live-frame policy: loads plugin behavior selected at runtime'
+  fully_qualified_callee_or_event: importlib.metadata.EntryPoint.load
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: Exact callable and dangerous ports reviewed for healed-value reachability.
+- rule_id: RH.CODE_EXECUTION.pickle_load
+  sink_kind: CODE_EXECUTION
+  effect_key: object_deserialization_stream
+  template: direct_call
+  callee: pickle.load
+  dangerous_argument: 0
+  evidence: Official Bandit B301 and Pysa models classify pickle.load as executable deserialization
+  fully_qualified_callee_or_event: pickle.load
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: official_evidence_and_human_review
+    official_rule_references:
+    - bandit|B301|BlacklistCall|scripts/sink_rules/sources/bandit/bandit/blacklists/calls.py
+    review_note: High-confidence API omission added during category coverage review.
+- rule_id: RH.CODE_EXECUTION.marshal_loads
+  sink_kind: CODE_EXECUTION
+  effect_key: bytecode_deserialization
+  template: direct_call
+  callee: marshal.loads
+  dangerous_argument: 0
+  evidence: Official Bandit B302 classifies marshal.loads as unsafe deserialization
+  fully_qualified_callee_or_event: marshal.loads
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: official_evidence_and_human_review
+    official_rule_references:
+    - bandit|B302|BlacklistCall|scripts/sink_rules/sources/bandit/bandit/blacklists/calls.py
+    review_note: High-confidence API omission added during category coverage review.
+- rule_id: RH.COMMAND_PROCESS.subprocess_run
+  sink_kind: COMMAND_PROCESS
+  effect_key: child_process_run
+  template: direct_call
+  callee: subprocess.run
+  dangerous_argument: 0
+  evidence: Official Bandit shell-injection rules cover subprocess process execution
+  fully_qualified_callee_or_event: subprocess.run
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: official_evidence_and_human_review
+    official_rule_references:
+    - bandit|B602|ASTTestPlugin|scripts/sink_rules/sources/bandit/bandit/plugins/injection_shell.py
+    review_note: High-confidence API omission added during category coverage review.
+- rule_id: RH.COMMAND_PROCESS.subprocess_call
+  sink_kind: COMMAND_PROCESS
+  effect_key: child_process_call
+  template: direct_call
+  callee: subprocess.call
+  dangerous_argument: 0
+  evidence: Official Bandit process execution rules cover subprocess.call
+  fully_qualified_callee_or_event: subprocess.call
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: official_evidence_and_human_review
+    official_rule_references:
+    - bandit|B603|ASTTestPlugin|scripts/sink_rules/sources/bandit/bandit/plugins/injection_shell.py
+    review_note: High-confidence API omission added during category coverage review.
+- rule_id: RH.NETWORK_IPC.requests_get
+  sink_kind: NETWORK_IPC
+  effect_key: http_request_get
+  template: direct_call
+  callee: requests.get
+  dangerous_argument: all
+  evidence: HTTP requests cross a network trust boundary
+  fully_qualified_callee_or_event: requests.get
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: High-confidence API omission added during category coverage review.
+- rule_id: RH.NETWORK_IPC.requests_request
+  sink_kind: NETWORK_IPC
+  effect_key: http_request_generic
+  template: direct_call
+  callee: requests.request
+  dangerous_argument: all
+  evidence: Generic HTTP requests cross a network trust boundary
+  fully_qualified_callee_or_event: requests.request
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: High-confidence API omission added during category coverage review.
+- rule_id: RH.DATABASE.sqlite_connection_execute
+  sink_kind: DATABASE
+  effect_key: database_connection_statement
+  template: direct_call
+  callee: sqlite3.Connection.execute
+  dangerous_argument:
+  - 0
+  - 1
+  evidence: SQLite connection convenience execution runs a database statement
+  fully_qualified_callee_or_event: sqlite3.Connection.execute
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: High-confidence API omission added during category coverage review.
+- rule_id: RH.DATA_DISCLOSURE.builtins_print
+  sink_kind: DATA_DISCLOSURE
+  effect_key: standard_output_print
+  template: direct_call
+  callee: builtins.print
+  dangerous_argument: all
+  evidence: Printing healed data discloses it to process output
+  fully_qualified_callee_or_event: builtins.print
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: High-confidence API omission added during category coverage review.
+- rule_id: RH.PERSISTENT_SHARED_STATE.path_write_text
+  sink_kind: PERSISTENT_SHARED_STATE
+  effect_key: path_text_write
+  template: direct_call
+  callee: pathlib.Path.write_text
+  dangerous_argument:
+  - 0
+  evidence: Writing text through pathlib persists shared filesystem state
+  fully_qualified_callee_or_event: pathlib.Path.write_text
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: High-confidence API omission added during category coverage review.
+- rule_id: RH.PERSISTENT_SHARED_STATE.path_write_bytes
+  sink_kind: PERSISTENT_SHARED_STATE
+  effect_key: path_bytes_write
+  template: direct_call
+  callee: pathlib.Path.write_bytes
+  dangerous_argument:
+  - 0
+  evidence: Writing bytes through pathlib persists shared filesystem state
+  fully_qualified_callee_or_event: pathlib.Path.write_bytes
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: High-confidence API omission added during category coverage review.
+- rule_id: RH.FILESYSTEM.os_unlink
+  sink_kind: FILESYSTEM
+  effect_key: filesystem_unlink
+  template: direct_call
+  callee: os.unlink
+  dangerous_argument: 0
+  evidence: Removes a filesystem entry.
+  fully_qualified_callee_or_event: os.unlink
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: High-confidence standard-library side effect added during category coverage review.
+- rule_id: RH.FILESYSTEM.os_rename
+  sink_kind: FILESYSTEM
+  effect_key: filesystem_rename
+  template: direct_call
+  callee: os.rename
+  dangerous_argument:
+  - 0
+  - 1
+  evidence: Moves or replaces a filesystem entry.
+  fully_qualified_callee_or_event: os.rename
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: High-confidence standard-library side effect added during category coverage review.
+- rule_id: RH.NETWORK_IPC.socket_send
+  sink_kind: NETWORK_IPC
+  effect_key: socket_stream_send
+  template: direct_call
+  callee: socket.socket.send
+  dangerous_argument: 0
+  evidence: Transmits data through a connected socket.
+  fully_qualified_callee_or_event: socket.socket.send
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: High-confidence standard-library side effect added during category coverage review.
+- rule_id: RH.NETWORK_IPC.socket_sendall
+  sink_kind: NETWORK_IPC
+  effect_key: socket_stream_send_all
+  template: direct_call
+  callee: socket.socket.sendall
+  dangerous_argument: 0
+  evidence: Transmits all data through a connected socket.
+  fully_qualified_callee_or_event: socket.socket.sendall
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: High-confidence standard-library side effect added during category coverage review.
+- rule_id: RH.NETWORK_IPC.urllib_urlopen
+  sink_kind: NETWORK_IPC
+  effect_key: urllib_request
+  template: direct_call
+  callee: urllib.request.urlopen
+  dangerous_argument: all
+  evidence: Performs an external URL request.
+  fully_qualified_callee_or_event: urllib.request.urlopen
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: High-confidence standard-library side effect added during category coverage review.
+- rule_id: RH.NETWORK_IPC.requests_put
+  sink_kind: NETWORK_IPC
+  effect_key: http_request_put
+  template: direct_call
+  callee: requests.put
+  dangerous_argument: all
+  evidence: Performs an externally visible HTTP mutation request.
+  fully_qualified_callee_or_event: requests.put
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: High-confidence standard-library side effect added during category coverage review.
+- rule_id: RH.NETWORK_IPC.requests_delete
+  sink_kind: NETWORK_IPC
+  effect_key: http_request_delete
+  template: direct_call
+  callee: requests.delete
+  dangerous_argument: all
+  evidence: Performs an externally visible HTTP deletion request.
+  fully_qualified_callee_or_event: requests.delete
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: High-confidence standard-library side effect added during category coverage review.
+- rule_id: RH.DATABASE.sqlite_rollback
+  sink_kind: DATABASE
+  effect_key: database_transaction_rollback
+  template: direct_call
+  callee: sqlite3.Connection.rollback
+  dangerous_argument: receiver
+  evidence: Rolls back pending database state changes.
+  fully_qualified_callee_or_event: sqlite3.Connection.rollback
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: High-confidence standard-library side effect added during category coverage review.
+- rule_id: RH.PERSISTENT_SHARED_STATE.path_unlink
+  sink_kind: PERSISTENT_SHARED_STATE
+  effect_key: path_unlink
+  template: direct_call
+  callee: pathlib.Path.unlink
+  dangerous_argument: receiver
+  evidence: Removes persistent filesystem state through pathlib.
+  fully_qualified_callee_or_event: pathlib.Path.unlink
+  receiver: null
+  guard: {}
+  direct_or_wrapper: direct
+  review:
+    status: confirmed
+    basis: human_supplement
+    official_rule_references: []
+    review_note: High-confidence standard-library side effect added during category coverage review.
+review:
+  status: completed
+  method: Each callable, sink kind, and dangerous port was manually reviewed against official_rules.yaml and API semantics.
+  removed_rule_ids:
+  - RH.AVAILABILITY_RESOURCE.gc_disable
+  - RH.AVAILABILITY_RESOURCE.os_abort
+  - RH.COMMAND_PROCESS.os_fork
+  - RH.NETWORK_IPC.grpc_unary_unary
+  - RH.UNKNOWN_EFFECT.getattr
+  - RH.UNKNOWN_EFFECT.mock_patch
+  - RH.UNKNOWN_EFFECT.setattr
+  confirmed_rule_count: 101
+  added_rule_ids:
+  - RH.CODE_EXECUTION.pickle_load
+  - RH.CODE_EXECUTION.marshal_loads
+  - RH.COMMAND_PROCESS.subprocess_run
+  - RH.COMMAND_PROCESS.subprocess_call
+  - RH.NETWORK_IPC.requests_get
+  - RH.NETWORK_IPC.requests_request
+  - RH.DATABASE.sqlite_connection_execute
+  - RH.DATA_DISCLOSURE.builtins_print
+  - RH.PERSISTENT_SHARED_STATE.path_write_text
+  - RH.PERSISTENT_SHARED_STATE.path_write_bytes
+  - RH.FILESYSTEM.os_unlink
+  - RH.FILESYSTEM.os_rename
+  - RH.NETWORK_IPC.socket_send
+  - RH.NETWORK_IPC.socket_sendall
+  - RH.NETWORK_IPC.urllib_urlopen
+  - RH.NETWORK_IPC.requests_put
+  - RH.NETWORK_IPC.requests_delete
+  - RH.DATABASE.sqlite_rollback
+  - RH.PERSISTENT_SHARED_STATE.path_unlink
